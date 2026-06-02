@@ -1,0 +1,15 @@
+[Unit]
+Description=mini_catalyst_center web server
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/mini_catalyst_center
+ExecStart=/opt/mini_catalyst_center/.venv/bin/gunicorn -w 2 -b 127.0.0.1:8080 server.app:app
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target
+
