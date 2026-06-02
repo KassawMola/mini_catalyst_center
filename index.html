@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="mini_catalyst_center is a demo NetOps portal for inventory, topology, backups, upgrades, troubleshooting, and operational assurance.">
     <title>mini_catalyst_center</title>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -10,23 +11,45 @@
   </head>
   <body>
     <section id="loginView" class="login-view">
+      <div class="login-hero">
+        <div class="hero-copy">
+          <span class="brand-chip"><i class="fa-solid fa-network-wired"></i> mini_catalyst_center</span>
+          <h1>Network operations demo for engineers who like clean control.</h1>
+          <p>Explore a portfolio-safe NetOps console with inventory, topology, backups, image upgrade flow, troubleshooting, assurance, and AI-assisted operational notes.</p>
+          <div class="hero-stats" aria-label="Demo summary">
+            <div><strong>12</strong><span>Devices</span></div>
+            <div><strong>4</strong><span>Sites</span></div>
+            <div><strong>0</strong><span>Real secrets</span></div>
+          </div>
+        </div>
+        <div class="hero-map" aria-hidden="true">
+          <span class="map-node core">DEMO01</span>
+          <span class="map-node a">DEMO02</span>
+          <span class="map-node b">DEMO03</span>
+          <span class="map-node c">DEMO04</span>
+          <span class="map-line one"></span>
+          <span class="map-line two"></span>
+          <span class="map-line three"></span>
+        </div>
+      </div>
+
       <div class="login-card">
         <div class="brand-lockup">
-          <span class="brand-icon"><i class="fa-solid fa-network-wired"></i></span>
+          <span class="brand-icon"><i class="fa-solid fa-shield-halved"></i></span>
           <div>
-            <p class="eyebrow">Demo Network Operations</p>
-            <h1>mini_catalyst_center</h1>
+            <p class="eyebrow">Browser-only demo</p>
+            <h2>Create access</h2>
           </div>
         </div>
         <div class="auth-tabs" role="tablist" aria-label="Demo access">
-          <button id="createTab" class="auth-tab active" type="button" data-auth-mode="create">Create demo access</button>
-          <button id="signinTab" class="auth-tab" type="button" data-auth-mode="signin">Sign in</button>
+          <button class="auth-tab active" type="button" data-auth-mode="create">Create</button>
+          <button class="auth-tab" type="button" data-auth-mode="signin">Sign in</button>
         </div>
         <form id="loginForm" class="login-form">
-          <label>Username <input id="username" placeholder="Create a username" autocomplete="username"></label>
-          <label>Password <input id="password" placeholder="Create a password" type="password" autocomplete="new-password"></label>
-          <button id="authButton" type="submit"><i class="fa-solid fa-user-plus"></i> Create account</button>
-          <p id="authNote" class="small-note">Create your own demo password. It is saved only in this browser.</p>
+          <label>Username <input id="username" placeholder="Choose a username" autocomplete="username"></label>
+          <label>Password <input id="password" placeholder="Choose a password" type="password" autocomplete="new-password"></label>
+          <button id="authButton" type="submit"><i class="fa-solid fa-user-plus"></i> Create demo workspace</button>
+          <p id="authNote" class="small-note">No fixed password is published. Your demo access is stored only in this browser.</p>
         </form>
       </div>
     </section>
@@ -42,9 +65,14 @@
           <button class="nav-item" data-view="inventory"><i class="fa-solid fa-list-check"></i><span>Inventory</span></button>
           <button class="nav-item" data-view="sites"><i class="fa-solid fa-building"></i><span>Sites</span></button>
           <button class="nav-item" data-view="topology"><i class="fa-solid fa-diagram-project"></i><span>Topology</span></button>
+          <button class="nav-item" data-view="assurance"><i class="fa-solid fa-clipboard-check"></i><span>Assurance</span></button>
+          <button class="nav-item" data-view="alerts"><i class="fa-solid fa-bell"></i><span>Alerts</span></button>
+          <button class="nav-item" data-view="commander"><i class="fa-solid fa-terminal"></i><span>Commander</span></button>
           <button class="nav-item" data-view="backups"><i class="fa-solid fa-box-archive"></i><span>Backups</span></button>
           <button class="nav-item" data-view="upgrade"><i class="fa-solid fa-cloud-arrow-up"></i><span>Upgrade</span></button>
           <button class="nav-item" data-view="troubleshooting"><i class="fa-solid fa-screwdriver-wrench"></i><span>Troubleshooting</span></button>
+          <button class="nav-item" data-view="ai-center"><i class="fa-solid fa-robot"></i><span>AI Center</span></button>
+          <button class="nav-item" data-view="jobs"><i class="fa-solid fa-briefcase"></i><span>Jobs</span></button>
         </nav>
         <button id="logoutButton" class="logout-button"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span></button>
       </aside>
@@ -56,6 +84,10 @@
             <h2 id="viewTitle">Dashboard</h2>
           </div>
           <div class="top-actions">
+            <label class="search-box" aria-label="Search demo">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input id="globalSearch" placeholder="Search device, site, IP">
+            </label>
             <span class="status-pill live"><i class="fa-solid fa-circle"></i> Live demo</span>
             <span id="activeUser" class="status-pill">User: demo</span>
           </div>
@@ -63,18 +95,15 @@
 
         <section id="dashboard" class="view active">
           <div class="kpi-grid">
-            <article class="kpi success"><span>Devices</span><strong>12</strong><small>11 online</small></article>
+            <article class="kpi success"><span>Devices</span><strong id="kpiDevices">12</strong><small>11 online</small></article>
             <article class="kpi warn"><span>Alerts</span><strong>2</strong><small>1 priority item</small></article>
             <article class="kpi"><span>Sites</span><strong>4</strong><small>DEMO01 to DEMO04</small></article>
             <article class="kpi"><span>Backups</span><strong>18</strong><small>Latest: today</small></article>
           </div>
-          <div class="split">
-            <article class="panel">
-              <div class="panel-head"><h3>Operations Snapshot</h3><button data-action="refresh"><i class="fa-solid fa-rotate"></i></button></div>
-              <div class="health-ring">
-                <span>92%</span>
-                <small>Fleet health</small>
-              </div>
+          <div class="dashboard-grid">
+            <article class="panel health-panel">
+              <div class="panel-head"><h3>Operations Snapshot</h3><button title="Refresh" data-action="refresh"><i class="fa-solid fa-rotate"></i></button></div>
+              <div class="health-ring"><span>92%</span><small>Fleet health</small></div>
               <ul class="signal-list">
                 <li><span class="dot ok"></span> DEMO01 core online at 192.168.1.1</li>
                 <li><span class="dot ok"></span> DEMO02 access stack synced</li>
@@ -82,7 +111,11 @@
               </ul>
             </article>
             <article class="panel">
-              <div class="panel-head"><h3>AI Operations Notes</h3><button data-action="analyze"><i class="fa-solid fa-robot"></i></button></div>
+              <div class="panel-head"><h3>Priority Timeline</h3><button title="Analyze" data-action="analyze"><i class="fa-solid fa-robot"></i></button></div>
+              <div id="timelineList" class="timeline-list"></div>
+            </article>
+            <article class="panel span-2">
+              <div class="panel-head"><h3>AI Operations Notes</h3><button title="Generate recommendation" data-action="analyze"><i class="fa-solid fa-wand-magic-sparkles"></i></button></div>
               <div id="aiNotes" class="terminal-box">Ready. Select Analyze to generate demo recommendations.</div>
             </article>
           </div>
@@ -90,10 +123,16 @@
 
         <section id="inventory" class="view">
           <div class="panel">
-            <div class="panel-head"><h3>Device Inventory</h3><button data-action="export"><i class="fa-solid fa-download"></i></button></div>
+            <div class="panel-head">
+              <h3>Device Inventory</h3>
+              <div class="panel-actions">
+                <select id="siteFilter" aria-label="Filter by site"><option value="all">All sites</option></select>
+                <button title="Export demo inventory" data-action="export"><i class="fa-solid fa-download"></i></button>
+              </div>
+            </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Device</th><th>IP</th><th>Site</th><th>Model</th><th>Version</th><th>Status</th></tr></thead>
+                <thead><tr><th>Device</th><th>IP</th><th>Site</th><th>Role</th><th>Model</th><th>Version</th><th>Status</th></tr></thead>
                 <tbody id="inventoryRows"></tbody>
               </table>
             </div>
@@ -106,6 +145,7 @@
 
         <section id="topology" class="view">
           <div class="panel topology-panel">
+            <div class="panel-head"><h3>Fabric Topology</h3><button data-action="discover"><i class="fa-solid fa-arrows-rotate"></i></button></div>
             <div class="topology-canvas">
               <div class="node core">DEMO01<br><span>192.168.1.1</span></div>
               <div class="node access a">DEMO02<br><span>192.168.1.2</span></div>
@@ -116,20 +156,43 @@
           </div>
         </section>
 
+        <section id="assurance" class="view">
+          <div class="cards-grid" id="assuranceCards"></div>
+        </section>
+
+        <section id="alerts" class="view">
+          <div class="panel">
+            <div class="panel-head"><h3>Operational Alerts</h3><button data-action="ack-alerts"><i class="fa-solid fa-check"></i></button></div>
+            <div id="alertsList" class="event-list"></div>
+          </div>
+        </section>
+
+        <section id="commander" class="view">
+          <div class="panel">
+            <div class="panel-head"><h3>Command Runner</h3><button data-action="run-command"><i class="fa-solid fa-play"></i></button></div>
+            <div class="form-grid">
+              <label>Target <select id="commandTarget"></select></label>
+              <label>Command <input id="commandInput" value="show interfaces status"></label>
+            </div>
+            <div id="commandLog" class="terminal-box">Command runner ready.</div>
+          </div>
+        </section>
+
         <section id="backups" class="view">
           <div class="panel">
             <div class="panel-head"><h3>Configuration Backups</h3><button data-action="backup"><i class="fa-solid fa-play"></i></button></div>
             <div id="backupLog" class="terminal-box">Backup service idle.</div>
           </div>
+          <div class="cards-grid" id="backupCards"></div>
         </section>
 
         <section id="upgrade" class="view">
           <div class="panel">
             <div class="panel-head"><h3>Image Upgrade Demo</h3><button data-action="upgrade"><i class="fa-solid fa-cloud-arrow-up"></i></button></div>
-            <div class="upgrade-grid">
-              <label>Target IPs <textarea>192.168.1.1
+            <div class="form-grid">
+              <label>Target IPs <textarea id="upgradeTargets">192.168.1.1
 192.168.1.2</textarea></label>
-              <label>Image <input value="demo-catalyst-image.bin"></label>
+              <label>Image <input id="upgradeImage" value="demo-catalyst-image.bin"></label>
             </div>
             <div class="progress-track"><span id="upgradeBar"></span></div>
             <div id="upgradeLog" class="terminal-box">Upgrade workflow ready.</div>
@@ -139,11 +202,25 @@
         <section id="troubleshooting" class="view">
           <div class="panel">
             <div class="panel-head"><h3>Troubleshooting</h3><button data-action="ping"><i class="fa-solid fa-satellite-dish"></i></button></div>
-            <div class="trouble-grid">
-              <label>Host <input value="192.168.1.1"></label>
-              <label>Port <input value="22"></label>
+            <div class="form-grid">
+              <label>Host <input id="troubleHost" value="192.168.1.1"></label>
+              <label>Port <input id="troublePort" value="22"></label>
             </div>
             <div id="troubleLog" class="terminal-box">Ready for ping and TCP checks.</div>
+          </div>
+        </section>
+
+        <section id="ai-center" class="view">
+          <div class="panel">
+            <div class="panel-head"><h3>AI Center</h3><button data-action="ai-plan"><i class="fa-solid fa-wand-magic-sparkles"></i></button></div>
+            <div id="aiPlan" class="ai-plan-grid"></div>
+          </div>
+        </section>
+
+        <section id="jobs" class="view">
+          <div class="panel">
+            <div class="panel-head"><h3>Background Jobs</h3><button data-action="new-job"><i class="fa-solid fa-plus"></i></button></div>
+            <div id="jobsList" class="event-list"></div>
           </div>
         </section>
       </main>
