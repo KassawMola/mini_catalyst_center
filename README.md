@@ -22,3 +22,13 @@ Folder: /docs
 ## Demo
 
 Open `docs/index.html` or publish with GitHub Pages. The demo account is stored only in browser localStorage.
+
+## Linux Server Install
+
+For a full server installation guide, read:
+
+```text
+INSTALL_LINUX.md
+```
+
+The server package includes a small Flask entrypoint under `server/` so the same UI can run from a Linux host.
