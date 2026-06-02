@@ -123,16 +123,27 @@
 
         <section id="inventory" class="view">
           <div class="panel">
+            <div class="panel-head"><h3>Add Device</h3><button data-action="add-device"><i class="fa-solid fa-plus"></i></button></div>
+            <div class="form-grid">
+              <label>Hostname <input id="deviceName" value="SW-DEMO-NEW"></label>
+              <label>IP Address <input id="deviceIp" value="192.168.1.9"></label>
+              <label>Site <select id="deviceSite"></select></label>
+              <label>Role <input id="deviceRole" value="Access"></label>
+            </div>
+          </div>
+          <div class="panel">
             <div class="panel-head">
               <h3>Device Inventory</h3>
               <div class="panel-actions">
                 <select id="siteFilter" aria-label="Filter by site"><option value="all">All sites</option></select>
                 <button title="Export demo inventory" data-action="export"><i class="fa-solid fa-download"></i></button>
+                <button title="Remove selected demo device" data-action="delete-device"><i class="fa-solid fa-trash"></i></button>
+                <button title="Reset demo data" data-action="reset-demo"><i class="fa-solid fa-rotate-left"></i></button>
               </div>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Device</th><th>IP</th><th>Site</th><th>Role</th><th>Model</th><th>Version</th><th>Status</th></tr></thead>
+                <thead><tr><th>Select</th><th>Device</th><th>IP</th><th>Site</th><th>Role</th><th>Model</th><th>Version</th><th>Status</th></tr></thead>
                 <tbody id="inventoryRows"></tbody>
               </table>
             </div>
@@ -140,6 +151,13 @@
         </section>
 
         <section id="sites" class="view">
+          <div class="panel">
+            <div class="panel-head"><h3>Create Site</h3><button data-action="add-site"><i class="fa-solid fa-plus"></i></button></div>
+            <div class="form-grid">
+              <label>Site Name <input id="newSiteName" value="DEMO05"></label>
+              <label>Management IP <input id="newSiteIp" value="192.168.1.10"></label>
+            </div>
+          </div>
           <div class="site-grid" id="siteGrid"></div>
         </section>
 
@@ -172,7 +190,9 @@
             <div class="panel-head"><h3>Command Runner</h3><button data-action="run-command"><i class="fa-solid fa-play"></i></button></div>
             <div class="form-grid">
               <label>Target <select id="commandTarget"></select></label>
-              <label>Command <input id="commandInput" value="show interfaces status"></label>
+              <label>Command Template <select id="commandTemplate"></select></label>
+              <label>Custom Command <input id="commandInput" value="show interfaces status"></label>
+              <label>Credential Source <input value="Server environment variables" disabled></label>
             </div>
             <div id="commandLog" class="terminal-box">Command runner ready.</div>
           </div>
@@ -194,6 +214,7 @@
 192.168.1.2</textarea></label>
               <label>Image <input id="upgradeImage" value="demo-catalyst-image.bin"></label>
             </div>
+            <div class="switch-picker" id="upgradeSwitches"></div>
             <div class="progress-track"><span id="upgradeBar"></span></div>
             <div id="upgradeLog" class="terminal-box">Upgrade workflow ready.</div>
           </div>
