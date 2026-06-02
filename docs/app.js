@@ -1,4 +1,4 @@
-const devices = [
+const defaultDevices = [
   { name: "DEMO01-CORE", ip: "192.168.1.1", site: "DEMO01", role: "Core", model: "Catalyst 9300", version: "17.9.5", status: "Up" },
   { name: "DEMO01-DIST-A", ip: "192.168.1.2", site: "DEMO01", role: "Distribution", model: "Catalyst 9300", version: "17.9.5", status: "Up" },
   { name: "DEMO02-ACCESS-A", ip: "192.168.1.3", site: "DEMO02", role: "Access", model: "Catalyst 9200", version: "17.9.5", status: "Up" },
@@ -8,6 +8,18 @@ const devices = [
   { name: "DEMO04-LAB", ip: "192.168.1.7", site: "DEMO04", role: "Lab", model: "Catalyst 1000", version: "17.9.5", status: "Up" },
   { name: "DEMO04-AP-CTRL", ip: "192.168.1.8", site: "DEMO04", role: "Wireless", model: "Controller", version: "8.10", status: "Up" }
 ];
+
+const commandTemplates = [
+  "show interfaces status",
+  "show version",
+  "show inventory",
+  "show ip interface brief",
+  "show logging | include ERROR",
+  "show running-config"
+];
+
+let devices = JSON.parse(localStorage.getItem("mcc_devices") || "null") || defaultDevices;
+let sites = JSON.parse(localStorage.getItem("mcc_sites") || "null") || ["DEMO01", "DEMO02", "DEMO03", "DEMO04"];
 
 const events = [
   { level: "info", title: "Inventory sync completed", detail: "8 demo devices were normalized into the inventory table." },
@@ -33,6 +45,8 @@ const authNote = document.querySelector("#authNote");
 const activeUser = document.querySelector("#activeUser");
 const globalSearch = document.querySelector("#globalSearch");
 const siteFilter = document.querySelector("#siteFilter");
+const deviceSite = document.querySelector("#deviceSite");
+const commandTemplate = document.querySelector("#commandTemplate");
 let authMode = localStorage.getItem("mcc_demo_account") ? "signin" : "create";
 
 function now() {
@@ -100,11 +114,17 @@ function filteredDevices() {
   });
 }
 
+function saveWorkspace() {
+  localStorage.setItem("mcc_devices", JSON.stringify(devices));
+  localStorage.setItem("mcc_sites", JSON.stringify(sites));
+}
+
 function renderInventory() {
   const rows = filteredDevices().map((device) => {
     const status = device.status === "Up" ? "up" : "review";
     return `
       <tr>
+        <td><input type="radio" name="selectedDevice" value="${escapeHtml(device.ip)}" aria-label="Select ${escapeHtml(device.name)}"></td>
         <td>${escapeHtml(device.name)}</td>
         <td>${escapeHtml(device.ip)}</td>
         <td>${escapeHtml(device.site)}</td>
@@ -116,17 +136,19 @@ function renderInventory() {
     `;
   }).join("");
 
-  document.querySelector("#inventoryRows").innerHTML = rows || '<tr><td colspan="7">No demo devices match the current filter.</td></tr>';
+  document.querySelector("#inventoryRows").innerHTML = rows || '<tr><td colspan="8">No demo devices match the current filter.</td></tr>';
 }
 
 function renderFilters() {
-  const sites = [...new Set(devices.map((device) => device.site))];
+  const normalizedSites = [...new Set([...sites, ...devices.map((device) => device.site)])];
+  sites = normalizedSites;
   siteFilter.innerHTML = '<option value="all">All sites</option>' + sites.map((site) => `<option value="${site}">${site}</option>`).join("");
+  deviceSite.innerHTML = sites.map((site) => `<option value="${site}">${site}</option>`).join("");
   document.querySelector("#commandTarget").innerHTML = devices.map((device) => `<option value="${device.ip}">${device.name} - ${device.ip}</option>`).join("");
+  commandTemplate.innerHTML = commandTemplates.map((command) => `<option value="${escapeHtml(command)}">${escapeHtml(command)}</option>`).join("");
 }
 
 function renderSites() {
-  const sites = [...new Set(devices.map((device) => device.site))];
   document.querySelector("#siteGrid").innerHTML = sites.map((site) => {
     const siteDevices = devices.filter((device) => device.site === site);
     const reviewCount = siteDevices.filter((device) => device.status !== "Up").length;
@@ -138,6 +160,16 @@ function renderSites() {
       </article>
     `;
   }).join("");
+}
+
+function renderUpgradeSwitches() {
+  document.querySelector("#upgradeSwitches").innerHTML = devices.map((device, index) => `
+    <label class="switch-choice">
+      <input type="checkbox" value="${device.ip}" ${index < 2 ? "checked" : ""}>
+      <span>${escapeHtml(device.name)}</span>
+      <small>${escapeHtml(device.ip)} - ${escapeHtml(device.version)}</small>
+    </label>
+  `).join("");
 }
 
 function renderTimeline() {
@@ -207,6 +239,16 @@ function bootWorkspace(username) {
   setView("dashboard");
 }
 
+async function postJson(path, payload) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
 loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const username = document.querySelector("#username").value.trim();
@@ -253,7 +295,7 @@ globalSearch.addEventListener("input", () => {
 siteFilter.addEventListener("change", renderInventory);
 
 document.querySelectorAll("[data-action]").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     const action = button.dataset.action;
 
     if (action === "analyze" || action === "ai-plan") {
@@ -280,6 +322,12 @@ document.querySelectorAll("[data-action]").forEach((button) => {
 
     if (action === "upgrade") {
       const bar = document.querySelector("#upgradeBar");
+      const selected = [...document.querySelectorAll("#upgradeSwitches input:checked")].map((item) => item.value);
+      if (!selected.length) {
+        alert("Select at least one switch to upgrade.");
+        return;
+      }
+      document.querySelector("#upgradeTargets").value = selected.join("\n");
       bar.style.width = "0%";
       document.querySelector("#upgradeLog").textContent = `[${now()}] Upgrade queued for demo devices.`;
       setTimeout(() => { bar.style.width = "42%"; }, 250);
@@ -288,10 +336,15 @@ document.querySelectorAll("[data-action]").forEach((button) => {
         bar.style.width = "100%";
         document.querySelector("#upgradeLog").textContent =
           `[${now()}] Upgrade simulation completed\n` +
-          `${document.querySelector("#upgradeTargets").value}\n` +
+          `${selected.join("\n")}\n` +
           `${document.querySelector("#upgradeImage").value}\n` +
           "Result: success";
       }, 1050);
+      try {
+        await postJson("/api/upgrade", { targets: selected, image: document.querySelector("#upgradeImage").value.trim() });
+      } catch (error) {
+        // GitHub Pages has no backend. The local Linux server handles this endpoint.
+      }
     }
 
     if (action === "ping") {
@@ -307,12 +360,57 @@ document.querySelectorAll("[data-action]").forEach((button) => {
     if (action === "run-command") {
       const target = document.querySelector("#commandTarget").value;
       const command = document.querySelector("#commandInput").value.trim();
-      document.querySelector("#commandLog").textContent =
-        `[${now()}] ${target}\n` +
-        `${command}\n` +
-        "Gi1/0/1 connected demo-uplink\n" +
-        "Gi1/0/2 connected demo-access\n" +
-        "Result: simulated output";
+      try {
+        const result = await postJson("/api/command", { target, command });
+        document.querySelector("#commandLog").textContent =
+          `[${now()}] ${result.target}\n${result.command}\n${result.output || result.error || "No output"}`;
+      } catch (error) {
+        document.querySelector("#commandLog").textContent =
+          `[${now()}] ${target}\n` +
+          `${command}\n` +
+          "Gi1/0/1 connected demo-uplink\n" +
+          "Gi1/0/2 connected demo-access\n" +
+          "Result: simulated output";
+      }
+    }
+
+    if (action === "add-site") {
+      const siteName = document.querySelector("#newSiteName").value.trim().toUpperCase();
+      const siteIp = document.querySelector("#newSiteIp").value.trim();
+      if (!siteName) return alert("Enter a site name.");
+      if (!sites.includes(siteName)) sites.push(siteName);
+      devices.push({ name: `${siteName}-CORE`, ip: siteIp || "192.168.1.1", site: siteName, role: "Core", model: "Catalyst", version: "17.9.5", status: "Up" });
+      saveWorkspace();
+      renderFilters(); renderInventory(); renderSites(); renderBackups(); renderUpgradeSwitches();
+      setView("sites");
+    }
+
+    if (action === "add-device") {
+      const name = document.querySelector("#deviceName").value.trim().toUpperCase();
+      const ip = document.querySelector("#deviceIp").value.trim();
+      const site = document.querySelector("#deviceSite").value;
+      const role = document.querySelector("#deviceRole").value.trim() || "Access";
+      if (!name || !ip) return alert("Enter device hostname and IP address.");
+      devices.push({ name, ip, site, role, model: "Catalyst", version: "17.9.5", status: "Up" });
+      saveWorkspace();
+      renderFilters(); renderInventory(); renderSites(); renderBackups(); renderUpgradeSwitches();
+      setView("inventory");
+    }
+
+    if (action === "delete-device") {
+      const selected = document.querySelector("input[name='selectedDevice']:checked");
+      if (!selected) return alert("Select a device first.");
+      devices = devices.filter((device) => device.ip !== selected.value);
+      saveWorkspace();
+      renderFilters(); renderInventory(); renderSites(); renderBackups(); renderUpgradeSwitches();
+    }
+
+    if (action === "reset-demo") {
+      if (!confirm("Remove custom data and restore the clean demo workspace?")) return;
+      devices = [...defaultDevices];
+      sites = ["DEMO01", "DEMO02", "DEMO03", "DEMO04"];
+      saveWorkspace();
+      renderFilters(); renderInventory(); renderSites(); renderBackups(); renderUpgradeSwitches();
     }
 
     if (action === "export") alert("Demo export prepared. No real data is downloaded.");
@@ -324,9 +422,14 @@ document.querySelectorAll("[data-action]").forEach((button) => {
 renderFilters();
 renderInventory();
 renderSites();
+renderUpgradeSwitches();
 renderTimeline();
 renderAssurance();
 renderBackups();
 renderAiPlan();
 renderJobs();
 setAuthMode(authMode);
+
+commandTemplate.addEventListener("change", () => {
+  document.querySelector("#commandInput").value = commandTemplate.value;
+});
