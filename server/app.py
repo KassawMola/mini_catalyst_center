@@ -30,15 +30,15 @@ def command():
         from netmiko import ConnectHandler
 
         username = os.getenv("MCC_DEVICE_USERNAME")
-        password = os.getenv("MCC_DEVICE_PASSWORD")
-        if not username or not password:
-            return jsonify({"ok": False, "error": "MCC_DEVICE_USERNAME and MCC_DEVICE_PASSWORD are required."}), 400
+        secret = os.getenv("MCC_DEVICE_SECRET")
+        if not username or not secret:
+            return jsonify({"ok": False, "error": "MCC_DEVICE_USERNAME and MCC_DEVICE_SECRET are required."}), 400
 
         device = {
             "device_type": os.getenv("MCC_DEVICE_TYPE", "cisco_ios"),
             "host": target,
             "username": username,
-            "password": password,
+            "password": secret,
         }
         with ConnectHandler(**device) as connection:
             output = connection.send_command(command_text)
