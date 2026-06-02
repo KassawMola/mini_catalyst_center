@@ -232,7 +232,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--teal); box-shado
 .view.active { display: block; animation: rise .28s ease both; }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.kpi-grid, .cards-grid, .site-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi-grid, .cards-grid, .site-grid, .switch-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .kpi { padding: 16px; }
 .kpi span, .mini-card span, .site-card span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; font-weight: 800; }
 .kpi strong, .mini-card strong, .site-card strong { display: block; margin: 8px 0 4px; font-size: 32px; line-height: 1; }
@@ -356,6 +356,20 @@ td { color: var(--ink); }
 .l3 { left: 50%; top: 114px; width: 330px; transform: rotate(50deg); }
 
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.switch-picker { margin: 12px 0 14px; }
+.switch-choice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(0,0,0,.18);
+}
+.switch-choice input { width: auto; }
+.switch-choice span { font-weight: 800; color: var(--ink); }
+.switch-choice small { grid-column: 2; color: var(--muted); }
 .progress-track { height: 14px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; margin-bottom: 14px; }
 .progress-track span { display: block; width: 0%; height: 100%; background: var(--teal); transition: width .5s ease; }
 .ai-plan-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
@@ -366,7 +380,7 @@ td { color: var(--ink); }
   .app-view { grid-template-columns: 74px minmax(0, 1fr); }
   .sidebar { padding: 12px; }
   .brand-link span, .nav-item span, .logout-button span { display: none; }
-  .kpi-grid, .cards-grid, .site-grid, .dashboard-grid, .ai-plan-grid, .form-grid { grid-template-columns: 1fr; }
+  .kpi-grid, .cards-grid, .site-grid, .dashboard-grid, .ai-plan-grid, .form-grid, .switch-picker { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 }
 
