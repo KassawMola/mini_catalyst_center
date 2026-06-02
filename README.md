@@ -4,8 +4,8 @@ Static GitHub Pages demo inspired by the MINI Catalyst Center operations portal.
 
 This repository is demo-safe:
 
-- No company names.
-- No customer branches or real site names.
+- No organization-specific names.
+- No real branch names or production site names.
 - No production IP addresses.
 - Demo access is created by the visitor in the browser.
 - Demo addressing only: `192.168.1.1`, `192.168.1.2`, `192.168.1.3`.
