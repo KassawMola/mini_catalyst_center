@@ -102,7 +102,7 @@ To allow real SSH commands through Netmiko:
 ```bash
 export MCC_REAL_COMMANDS=1
 export MCC_DEVICE_USERNAME="your_device_username"
-export MCC_DEVICE_PASSWORD="your_device_password"
+export MCC_DEVICE_SECRET="your_device_secret"
 export MCC_DEVICE_TYPE="cisco_ios"
 python server/app.py
 ```
@@ -133,7 +133,7 @@ For real command execution in systemd, add these lines under `[Service]`:
 ```ini
 Environment=MCC_REAL_COMMANDS=1
 Environment=MCC_DEVICE_USERNAME=your_device_username
-Environment=MCC_DEVICE_PASSWORD=your_device_password
+Environment=MCC_DEVICE_SECRET=your_device_secret
 Environment=MCC_DEVICE_TYPE=cisco_ios
 ```
 
